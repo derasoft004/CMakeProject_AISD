@@ -1,5 +1,5 @@
 ﻿#include "CMakeProject_AISD.h"
-
+#define w_space 3
 
 using namespace std;
 
@@ -12,7 +12,7 @@ public:
 
 	GrayscaleImage(int w, int h, bool feel): width(w), height(h) {
 		srand(time(0));
-		list_elements = new T[width * height];
+		list_elements = new T[w * h];
 		random_device rd;
 		mt19937 gen(rd());
 		uniform_int_distribution<> dis(0, 10); // случайный Т от 0 до макс numeric_limits<T>::max()
@@ -70,7 +70,20 @@ public:
 	GrayscaleImage<T> operator!(){
 		GrayscaleImage<T> other(width, height, false);
 		for (int i = 0; i < width * height; i++) {
-			other.list_elements[i] = ~list_elements[i] + 1;
+			other.list_elements[i] = ~list_elements[i] + 1; // ~ - побитовое инвертирование, нужно добавлять 1
+		}
+		return other;
+	}
+
+	GrayscaleImage<T> invert_upper_line(T x1, T y1, T x2, T y2) {
+		GrayscaleImage<T> other(width, height, false);
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				if (i < y1 && j > x2) {
+					other.list_elements[i * width + j] = ~list_elements[i * width + j] + 1;
+				}
+				else other.list_elements[i * width + j] = list_elements[i * width + j];
+			}
 		}
 		return other;
 	}
@@ -84,9 +97,28 @@ public:
 	}
 
 	void print() const {
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				cout.width(w_space);
 				cout << list_elements[i * width + j] << " ";
+			}
+			cout << endl;
+		}
+	}
+	void print_index(T x1, T y1, T x2, T y2) const {
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				if (x1 < x2 && y1 > y2) {
+					if ((i + j) < max(max(x1, y1), max(x2, y2))) {
+						cout.width(w_space);
+						cout << "-" << i << j << "";
+					}
+					else {
+						cout.width(w_space);
+						cout << " " << i << j;
+					}
+				}
+				
 			}
 			cout << endl;
 		}
@@ -101,9 +133,9 @@ public:
 int main()
 {
 	setlocale(LC_ALL, "");
-	GrayscaleImage<int> image(3, 3, true);
+	GrayscaleImage<int> image(5, 5, true);
 	image.print(); // принтанули
-
+	/*
 	cout << "изменим 2-ой элемент на 11" << endl;
 	image(0, 1) = 11; // изменили
 	image.print();
@@ -119,6 +151,10 @@ int main()
 	GrayscaleImage<int> image_composition = inverted_image * 2;
 	cout << "умножим все на 2" << endl;
 	image_composition.print(); // умножили на 2 принтанули
+	*/
+	cout << "инвертируем все что над линией" << endl;
+	GrayscaleImage<int> invert_upper_line = image.invert_upper_line(0, 3, 3, 0);
+	invert_upper_line.print_index(1, 2, 4, 0);
 
 	cout << "пустая матрица" << endl;
 	GrayscaleImage<int> empty_image(3, 3, false);
