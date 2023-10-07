@@ -1,5 +1,5 @@
 ﻿#include "CMakeProject_AISD.h"
-#define w_space 3
+#define w_space 6
 
 using namespace std;
 
@@ -105,13 +105,30 @@ public:
 			cout << endl;
 		}
 	}
-	void print_index(T x1, T y1, T x2, T y2) const {
+	void print_index(T x1, T y1, T x2, T y2) const { // x1 И x2 - j; y1 И y2 - i
 		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
-				if (x1 < x2 && y1 > y2) {
-					if ((i + j) < max(max(x1, y1), max(x2, y2))) {
+			for (int j = 0; j < height; j++) { 
+				if (y1 == x2 && x1 == y2) { // косая линия - вправо наверх, работает 
+					while (y1 != 4) {
+						cout << x1 << y1 << x2 << y2 << endl;
+						y1 += 1;
+						y2 -= 1;
+						x1 -= 1;
+						x2 += 1;
+					}
+					if ((i * width + j) < ((y1 * width + x1) - (y2 * width + x2)) && (i + j) < (y1 + x1)) {
 						cout.width(w_space);
-						cout << "-" << i << j << "";
+						cout << "-" << i << j;
+					}
+					else {
+						cout.width(w_space);
+						cout << " " << i << j;
+					}
+				}
+				else if (x1 == x2) { // горизонтальная линия, полностью работает
+					if ((i * width + j)/5 < (fabs((x1 * width + y1) / 5))) {
+						cout.width(w_space);
+						cout << "-" << i << j;
 					}
 					else {
 						cout.width(w_space);
@@ -151,10 +168,6 @@ int main()
 	GrayscaleImage<int> image_composition = inverted_image * 2;
 	cout << "умножим все на 2" << endl;
 	image_composition.print(); // умножили на 2 принтанули
-	*/
-	cout << "инвертируем все что над линией" << endl;
-	GrayscaleImage<int> invert_upper_line = image.invert_upper_line(0, 3, 3, 0);
-	invert_upper_line.print_index(1, 2, 4, 0);
 
 	cout << "пустая матрица" << endl;
 	GrayscaleImage<int> empty_image(3, 3, false);
@@ -162,6 +175,12 @@ int main()
 
 	float fillCoefficient = image.getFillCoefficient();
 	cout << "Fill coefficient: " << fillCoefficient << endl;
+	*/
+	cout << "инвертируем все что над линией" << endl;
+	GrayscaleImage<int> invert_upper_line = image.invert_upper_line(0, 3, 3, 0);
+	invert_upper_line.print_index(2, 2, 2, 3);
+
+	
 
 	
 	return 0;
