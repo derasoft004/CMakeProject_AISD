@@ -106,26 +106,63 @@ public:
 		}
 	}
 	void print_index(T x1, T y1, T x2, T y2) const { // x1 И x2 - j; y1 И y2 - i
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) { 
-				if (y1 == x2 && x1 == y2) { // косая линия - вправо наверх, работает 
-					while (y1 != 4) {
-						cout << x1 << y1 << x2 << y2 << endl;
-						y1 += 1;
-						y2 -= 1;
-						x1 -= 1;
-						x2 += 1;
-					}
-					if ((i * width + j) < ((y1 * width + x1) - (y2 * width + x2)) && (i + j) < (y1 + x1)) {
-						cout.width(w_space);
-						cout << "-" << i << j;
-					}
-					else {
-						cout.width(w_space);
-						cout << " " << i << j;
-					}
+		if (x1 == x2 && y1 == y2) {
+			cout << "введтите две разные точки" << endl;
+			return;
+		}
+		if (x1 > width || x2 > width || y1 > height | y2 > height) {
+			cout << "введите точки с координатами, не выходящими за границы" << endl;
+			return;
+		}
+		if (y1 == y2) {
+			cout << "введите точки, для которых линия не будет вертикальной" << endl;
+			return;
+		}
+
+		int type = 0;
+		if ((x1 == x2) && (y1 != y2)) {
+			type = 1;
+		}
+		else if (x1 < x2 && y1 > y2) {
+			type = 2;
+			while ((y1 < height - 1 && x1 > 0) || (x2 < width - 1 && y2 > 0)) {
+				cout << x1 << y1 << x2 << y2 << endl;
+				if (x2 < width-1) {
+					x2 += 1;
+					y2 -= 1;
 				}
-				else if (x1 == x2) { // горизонтальная линия, полностью работает
+				if (y1 < height-1) {
+					x1 -= 1;
+					y1 += 1;
+				}
+				cout << "=>" << x1 << y1 << x2 << y2 << endl;
+			}
+		}
+		else if (x1 > x2 && y1 < y2) {
+			type = 3;
+			while ((y1 < height - 1 && x1 > 0) || (x2 < width - 1 && y2 > 0)) {
+				cout << x1 << y1 << x2 << y2 << endl;
+				if (x2 < width - 1) {
+					x2 += 1;
+					y2 -= 1;
+				}
+				if (y1 < height - 1) {
+					x1 -= 1;
+					y1 += 1;
+				}
+				cout << "=>" << x1 << y1 << x2 << y2 << endl;
+			}
+		}
+
+		T tmpx1 = x1, tmpy1 = y1, tmpx2 = x2, tmpy2 = y2;
+		int path = 0;
+		for (int i = 0; i < width; i++) {
+			if (type == 2) {
+				if (i < y2) path = 1;
+				else path = 0;
+			}
+			for (int j = 0; j < height; j++) { 
+				if (type == 1) { // горизонтальная линия, полностью работает
 					if ((i * width + j)/5 < (fabs((x1 * width + y1) / 5))) {
 						cout.width(w_space);
 						cout << "-" << i << j;
@@ -135,6 +172,27 @@ public:
 						cout << " " << i << j;
 					}
 				}
+
+				if (type == 2) {
+					if ((tmpx1 < tmpx2 && tmpy1 > tmpy2) || (tmpx1 == tmpx2 && tmpy1 == tmpy2)) {
+						if (path) {
+							cout.width(w_space);
+							cout << "-" << i << j;
+						}
+						else if (!path) {
+							if (j < tmpx2 && i <= tmpy1 && i+j < tmpx1 + tmpy1) {
+								cout.width(w_space);
+								cout << "-" << i << j;
+							}
+							else { 
+								cout.width(w_space);
+								cout << " " << i << j;
+							}
+						}
+					}
+				}				
+			}
+			if (type == 2) {
 				
 			}
 			cout << endl;
@@ -176,9 +234,13 @@ int main()
 	float fillCoefficient = image.getFillCoefficient();
 	cout << "Fill coefficient: " << fillCoefficient << endl;
 	*/
-	cout << "инвертируем все что над линией" << endl;
 	GrayscaleImage<int> invert_upper_line = image.invert_upper_line(0, 3, 3, 0);
+	cout << "инвертируем все что над прямой 2-ой линией линией" << endl;
 	invert_upper_line.print_index(2, 2, 2, 3);
+	cout << "инвертируем все что над косой линией (0, 4) (4, 0) линией" << endl;
+	invert_upper_line.print_index(2, 3, 3, 2);
+	cout << "инвертируем все что над косой линией (2, 3) (4, 1) линией" << endl;
+	invert_upper_line.print_index(2, 3, 4, 1);
 
 	
 
