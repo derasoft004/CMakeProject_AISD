@@ -15,7 +15,7 @@ public:
 		list_elements = new T[w * h];
 		random_device rd;
 		mt19937 gen(rd());
-		uniform_int_distribution<> dis(0, 10); // случайный Т от 0 до макс numeric_limits<T>::max()
+		uniform_int_distribution<> dis(0, 9); // случайный Т от 0 до макс numeric_limits<T>::max()
 		for (int i = 0; i < width * height; i++) {
 			if (feel) list_elements[i] = dis(gen);
 			else list_elements[i] = 0;
@@ -114,13 +114,13 @@ public:
 			cout << "введите точки с координатами, не выходящими за границы" << endl;
 			return;
 		}
-		if (y1 == y2) {
+		if (x1 == x2) {
 			cout << "введите точки, для которых линия не будет вертикальной" << endl;
 			return;
 		}
 
 		int type = 0;
-		if ((x1 == x2) && (y1 != y2)) {
+		if ((y1 == y2) && (x1 != x2)) {
 			type = 1;
 		}
 		else if (x1 < x2 && y1 > y2) {
@@ -163,13 +163,15 @@ public:
 			}
 			for (int j = 0; j < height; j++) { 
 				if (type == 1) { // горизонтальная линия, полностью работает
-					if ((i * width + j)/5 < (fabs((x1 * width + y1) / 5))) {
+					if (i < y1) {
 						cout.width(w_space);
-						cout << "-" << i << j;
+						if (list_elements[i * width + j] > 0) cout << ~list_elements[i * width + j] + 1;
+						else cout << list_elements[i * width + j];
 					}
 					else {
 						cout.width(w_space);
-						cout << " " << i << j;
+						if (list_elements[i * width + j] < 0) cout << ~list_elements[i * width + j] + 1;
+						else cout << list_elements[i * width + j];
 					}
 				}
 
@@ -177,16 +179,19 @@ public:
 					if ((tmpx1 < tmpx2 && tmpy1 > tmpy2) || (tmpx1 == tmpx2 && tmpy1 == tmpy2)) {
 						if (path) {
 							cout.width(w_space);
-							cout << "-" << i << j;
+							if (list_elements[i * width + j] > 0) cout << ~list_elements[i * width + j] + 1;
+							else cout << list_elements[i * width + j];;
 						}
 						else if (!path) {
 							if (j < tmpx2 && i <= tmpy1 && i+j < tmpx1 + tmpy1) {
 								cout.width(w_space);
-								cout << "-" << i << j;
+								if (list_elements[i * width + j] > 0) cout << ~list_elements[i * width + j] + 1;
+								else cout << list_elements[i * width + j];
 							}
 							else { 
 								cout.width(w_space);
-								cout << " " << i << j;
+								if (list_elements[i * width + j] < 0) cout << ~list_elements[i * width + j] + 1;
+								else cout << list_elements[i * width + j];
 							}
 						}
 					}
@@ -208,7 +213,7 @@ public:
 int main()
 {
 	setlocale(LC_ALL, "");
-	GrayscaleImage<int> image(5, 5, true);
+	GrayscaleImage<int> image(7, 7, true);
 	image.print(); // принтанули
 	/*
 	cout << "изменим 2-ой элемент на 11" << endl;
@@ -236,11 +241,11 @@ int main()
 	*/
 	GrayscaleImage<int> invert_upper_line = image.invert_upper_line(0, 3, 3, 0);
 	cout << "инвертируем все что над прямой 2-ой линией линией" << endl;
-	invert_upper_line.print_index(2, 2, 2, 3);
+	invert_upper_line.print_index(0, 1, 1, 1);
 	cout << "инвертируем все что над косой линией (0, 4) (4, 0) линией" << endl;
-	invert_upper_line.print_index(2, 3, 3, 2);
-	cout << "инвертируем все что над косой линией (2, 3) (4, 1) линией" << endl;
-	invert_upper_line.print_index(2, 3, 4, 1);
+	invert_upper_line.print_index(1, 0, 0, 1);
+	cout << "инвертируем все что над косой линией (0, 1) (1, 0) линией" << endl;
+	invert_upper_line.print_index(3, 4, 4, 3);
 
 	
 
