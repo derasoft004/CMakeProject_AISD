@@ -105,17 +105,22 @@ public:
 			cout << endl;
 		}
 	}
-	void print_index(T x1, T y1, T x2, T y2) const { // x1 И x2 - j; y1 И y2 - i
+
+	void print_invert_under_line(T x1, T y1, T x2, T y2) const {
 		if (x1 == x2 && y1 == y2) {
 			cout << "введтите две разные точки" << endl;
 			return;
 		}
-		if (x1 > width || x2 > width || y1 > height | y2 > height) {
+		else if (x1 >= width || x2 >= width || y1 >= height || y2 >= height) {
 			cout << "введите точки с координатами, не выходящими за границы" << endl;
 			return;
 		}
-		if (x1 == x2) {
+		else if (x1 == x2) {
 			cout << "введите точки, для которых линия не будет вертикальной" << endl;
+			return;
+		}
+		else if ((x1 == x2 && y1 == y2) || (x1 >= width || x2 >= width || y1 >= height || y2 >= height)){
+			cout << "введите точки для прямой или косой линии" << endl;
 			return;
 		}
 
@@ -123,10 +128,18 @@ public:
 		if ((y1 == y2) && (x1 != x2)) {
 			type = 1;
 		}
-		else if (x1 < x2 && y1 > y2) {
+		else if ((x1 < x2 && y1 > y2) || (x1 > x2&& y1 < y2)) {
+			if ((x1 > x2 && y1 < y2)) {
+				T tmpx = x2, tmpy = y2;
+				x2 = x1;
+				x1 = tmpx;
+				y2 = y1;
+				y1 = tmpy;
+
+			}
 			type = 2;
 			while ((y1 < height - 1 && x1 > 0) || (x2 < width - 1 && y2 > 0)) {
-				cout << x1 << y1 << x2 << y2 << endl;
+				// cout << x1 << y1 << x2 << y2 << endl; // для отладки
 				if (x2 < width-1) {
 					x2 += 1;
 					y2 -= 1;
@@ -140,18 +153,6 @@ public:
 		}
 		else if (x1 > x2 && y1 < y2) {
 			type = 3;
-			while ((y1 < height - 1 && x1 > 0) || (x2 < width - 1 && y2 > 0)) {
-				cout << x1 << y1 << x2 << y2 << endl;
-				if (x2 < width - 1) {
-					x2 += 1;
-					y2 -= 1;
-				}
-				if (y1 < height - 1) {
-					x1 -= 1;
-					y1 += 1;
-				}
-				cout << "=>" << x1 << y1 << x2 << y2 << endl;
-			}
 		}
 
 		T tmpx1 = x1, tmpy1 = y1, tmpx2 = x2, tmpy2 = y2;
@@ -197,9 +198,6 @@ public:
 					}
 				}				
 			}
-			if (type == 2) {
-				
-			}
 			cout << endl;
 		}
 	}
@@ -215,8 +213,7 @@ int main()
 	setlocale(LC_ALL, "");
 	GrayscaleImage<int> image(7, 7, true);
 	image.print(); // принтанули
-	/*
-	cout << "изменим 2-ой элемент на 11" << endl;
+	cout << "изменим элемент (1, 0) на 11" << endl;
 	image(0, 1) = 11; // изменили
 	image.print();
 
@@ -238,14 +235,11 @@ int main()
 
 	float fillCoefficient = image.getFillCoefficient();
 	cout << "Fill coefficient: " << fillCoefficient << endl;
-	*/
 	GrayscaleImage<int> invert_upper_line = image.invert_upper_line(0, 3, 3, 0);
-	cout << "инвертируем все что над прямой 2-ой линией линией" << endl;
-	invert_upper_line.print_index(0, 1, 1, 1);
-	cout << "инвертируем все что над косой линией (0, 4) (4, 0) линией" << endl;
-	invert_upper_line.print_index(1, 0, 0, 1);
-	cout << "инвертируем все что над косой линией (0, 1) (1, 0) линией" << endl;
-	invert_upper_line.print_index(3, 4, 4, 3);
+	cout << "инвертируем все что над прямой 2-ой ПРЯМОЙ " << endl;
+	invert_upper_line.print_invert_under_line(0, 1, 1, 1);
+	cout << "инвертируем все что над косой ПРЯМОЙ (3, 4) (4, 3)" << endl;
+	invert_upper_line.print_invert_under_line(5, 2, 2, 5);
 
 	
 
