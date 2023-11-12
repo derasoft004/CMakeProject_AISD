@@ -7,3 +7,5 @@ project ("CMakeProject_AISD")
 
 # Включите подпроекты.
 add_subdirectory ("CMakeProject_AISD")
+
+add_executable(console "CMakeProject_AISD/console.cpp")
