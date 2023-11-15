@@ -42,7 +42,7 @@ space_class::GrayscaleImage<T>::GrayscaleImage(short w, short h, bool fill, bool
 }
 
 template<typename T>
-space_class::GrayscaleImage<T>::GrayscaleImage(const GrayscaleImage<T>& other)
+GrayscaleImage<T>::GrayscaleImage(const GrayscaleImage<T>& other)
 {
     this->list_elements = other.list_elements;
     this->width = other.width;
@@ -55,7 +55,7 @@ space_class::GrayscaleImage<T>::GrayscaleImage(const GrayscaleImage<T>& other)
 }
 
 template<typename T>
-void space_class::GrayscaleImage<T>::Swap(GrayscaleImage<T>& other)
+void GrayscaleImage<T>::Swap(GrayscaleImage<T>& other)
 {
     std::swap(this->list_elements, other.list_elements);
     std::swap(this->width, other.width);
@@ -63,12 +63,13 @@ void space_class::GrayscaleImage<T>::Swap(GrayscaleImage<T>& other)
 }
 
 template<typename T>
-GrayscaleImage<T>& space_class::GrayscaleImage<T>::operator=(const GrayscaleImage<T>& other)
+GrayscaleImage<T>& GrayscaleImage<T>::operator=(const GrayscaleImage<T>& other)
 {
     GrayscaleImage copy(other);
     this->Swap(copy);
     return *this;
 }
+
 
 template<typename T>
 void space_class::GrayscaleImage<T>::operator!() {
@@ -102,16 +103,16 @@ void space_class::GrayscaleImage<T>::operator!() {
 }
 
 template<typename T>
-T& space_class::GrayscaleImage<T>::operator()(short x, short y)
+T& GrayscaleImage<T>::operator()(short x, short y)
 {
     if (x >= 0 && x < width && y >= 0 && y < height)
         return list_elements[x * width + y];
-    else throw "Index out of range!";
+    else throw runtime_error("Index out of range!");
 }
 
 
 template<typename T>
-const T& space_class::GrayscaleImage<T>::operator()(short x, short y) const { // чтиво
+const T& GrayscaleImage<T>::operator()(short x, short y) const { // чтиво
     if (x >= 0 && x < width && y >= 0 && y < height)
         return list_elements[x * width + y];
     else throw "Index out of range!";
@@ -119,7 +120,7 @@ const T& space_class::GrayscaleImage<T>::operator()(short x, short y) const { //
 
 
 template<typename T>
-GrayscaleImage<T> space_class::GrayscaleImage<T>::operator*(T a) {
+GrayscaleImage<T> GrayscaleImage<T>::operator*(T a) {
     GrayscaleImage<T> other(width, height, false);
     for (int i = 0; i < width * height; i++) {
         other.list_elements[i] = list_elements[i] * a;
@@ -128,7 +129,7 @@ GrayscaleImage<T> space_class::GrayscaleImage<T>::operator*(T a) {
 }
 
 template<typename T>
-GrayscaleImage<T> space_class::GrayscaleImage<T>::operator+(T a) {
+GrayscaleImage<T> GrayscaleImage<T>::operator+(T a) {
     GrayscaleImage<T> other(width, height, false);
     for (int i = 0; i < width * height; i++) {
         other.list_elements[i] = list_elements[i] + a;
@@ -137,7 +138,7 @@ GrayscaleImage<T> space_class::GrayscaleImage<T>::operator+(T a) {
 }
 
 template<typename T>
-float space_class::GrayscaleImage<T>::getFillCoefficient() const {
+float GrayscaleImage<T>::getFillCoefficient() const {
     float sum = 0;
     if (typeid(T).name() != typeid(bool).name() && typeid(T).name() != typeid(char).name()) {
         for (int i = 0; i < width * height; i++) {
@@ -147,8 +148,27 @@ float space_class::GrayscaleImage<T>::getFillCoefficient() const {
     return sum / (width * height);
 }
 
+
 template<typename T>
-void space_class::GrayscaleImage<T>::invert_under_line(short x1, short y1, short x2, short y2) const {
+T invert(T& obj) {
+    if (typeid(T).name() == typeid(char).name()) {
+        throw runtime_error("you cant invert this type!");
+    }
+    if (typeid(T).name() == typeid(bool).name()) {
+        if (obj) obj = 0;
+        else obj = 1;
+    }
+    else if (typeid(T).name() == typeid(float).name()) {
+        obj *= (-1.0);
+    }
+    else {
+        obj *= (-1);
+    }
+    return obj;
+};
+
+template<typename T>
+void GrayscaleImage<T>::invert_under_line(short x1, short y1, short x2, short y2) const {
     if (x1 == x2 && y1 == y2) {
         cout << "enter two different points" << endl;
         return;
@@ -181,7 +201,6 @@ void space_class::GrayscaleImage<T>::invert_under_line(short x1, short y1, short
         }
         type = 2;
         while ((y1 < height - 1 && x1 > 0) || (x2 < width - 1 && y2 > 0)) {
-            // cout << x1 << y1 << x2 << y2 << endl; // для отладки
             if (x2 < width - 1) {
                 x2 += 1;
                 y2 -= 1;
@@ -190,11 +209,12 @@ void space_class::GrayscaleImage<T>::invert_under_line(short x1, short y1, short
                 x1 -= 1;
                 y1 += 1;
             }
-            // cout << "=>" << x1 << y1 << x2 << y2 << endl; // для отладки
         }
     }
     else if (x1 > x2 && y1 < y2) {
-        type = 3;
+        swap(x1, x2);
+        swap(y1, y2);
+        type = 2;
     }
 
     short tmpx1 = x1, tmpy1 = y1, tmpx2 = x2, tmpy2 = y2;
@@ -207,30 +227,29 @@ void space_class::GrayscaleImage<T>::invert_under_line(short x1, short y1, short
         for (int j = 0; j < height; j++) {
             if (type == 1) { // горизонтальная линия, полностью работает
                 if (i < y1) {
-                    if (list_elements[i * width + j] > 0) list_elements[i * width + j] = !list_elements[i * width + j] + 1;
+                    if (list_elements[i * width + j] > 0) list_elements[i * width + j] = invert(list_elements[i * width + j]);
                 }
                 else {
-                    if (list_elements[i * width + j] < 0) list_elements[i * width + j] = !list_elements[i * width + j] + 1;
+                    if (list_elements[i * width + j] < 0) list_elements[i * width + j] = invert(list_elements[i * width + j]);
                 }
             }
 
             if (type == 2) {
                 if ((tmpx1 < tmpx2 && tmpy1 > tmpy2) || (tmpx1 == tmpx2 && tmpy1 == tmpy2)) {
                     if (path) {
-                        if (list_elements[i * width + j] > 0) list_elements[i * width + j] = !list_elements[i * width + j] + 1;
+                        if (list_elements[i * width + j] > 0) list_elements[i * width + j] = invert(list_elements[i * width + j]);
                     }
                     else if (!path) {
                         if (j < tmpx2 && i <= tmpy1 && i + j < tmpx1 + tmpy1) {
-                            if (list_elements[i * width + j] > 0) list_elements[i * width + j] = !list_elements[i * width + j] + 1;
+                            if (list_elements[i * width + j] > 0) list_elements[i * width + j] = invert(list_elements[i * width + j]);
                         }
                         else {
-                            if (list_elements[i * width + j] < 0) list_elements[i * width + j] = !list_elements[i * width + j] + 1;
+                            if (list_elements[i * width + j] < 0) list_elements[i * width + j] = invert(list_elements[i * width + j]);
                         }
                     }
                 }
             }
         }
-        cout << endl;
     }
 }
 
