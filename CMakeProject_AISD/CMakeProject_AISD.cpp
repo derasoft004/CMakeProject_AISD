@@ -44,7 +44,7 @@ space_class::GrayscaleImage<T>::GrayscaleImage(short w, short h, bool fill, bool
 template<typename T>
 GrayscaleImage<T>::GrayscaleImage(const GrayscaleImage<T>& other)
 {
-    this->list_elements = other.list_elements;
+    this->list_elements = new T[other.width * other.height];
     this->width = other.width;
     this->height = other.height;
     for (int i = 0; i < width; i++) {
@@ -63,10 +63,10 @@ void GrayscaleImage<T>::Swap(GrayscaleImage<T>& other)
 }
 
 template<typename T>
-GrayscaleImage<T>& GrayscaleImage<T>::operator=(const GrayscaleImage<T>& other)
+GrayscaleImage<T>& GrayscaleImage<T>::operator=(const GrayscaleImage<T> other)
 {
-    GrayscaleImage copy(other);
-    this->Swap(copy);
+
+    Swap(other);
     return *this;
 }
 
@@ -138,6 +138,33 @@ GrayscaleImage<T> GrayscaleImage<T>::operator+(T a) {
 }
 
 template<typename T>
+bool space_class::GrayscaleImage<T>::operator==(const GrayscaleImage<T>& other) const {
+    const float eps = 0.0001;
+    if (typeid(T).name() == typeid(char).name()) {
+        throw runtime_error("you cant compare this type");
+    }
+    else if (typeid(T).name() == typeid(bool).name()) {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                if (list_elements[i * width + j] != other.list_elements[i * width + j]) {
+                    return false;
+                }
+            }
+        }
+    }
+    else {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                if (list_elements[i * width + j] - other.list_elements[i * width + j] > eps) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+template<typename T>
 float GrayscaleImage<T>::getFillCoefficient() const {
     float sum = 0;
     if (typeid(T).name() != typeid(bool).name() && typeid(T).name() != typeid(char).name()) {
@@ -150,13 +177,14 @@ float GrayscaleImage<T>::getFillCoefficient() const {
 
 
 template<typename T>
-T invert(T& obj) {
+T invert(T obj) {
     if (typeid(T).name() == typeid(char).name()) {
         throw runtime_error("you cant invert this type!");
     }
     if (typeid(T).name() == typeid(bool).name()) {
         if (obj) obj = 0;
-        else obj = 1;
+        else  obj = 1;
+        //obj = !obj;
     }
     else if (typeid(T).name() == typeid(float).name()) {
         obj *= (-1.0);

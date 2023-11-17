@@ -18,11 +18,12 @@ namespace space_class {
         GrayscaleImage(short w, short h, bool fill, bool is_float);
         GrayscaleImage(const GrayscaleImage<T>& other);
         void Swap(GrayscaleImage<T>& other);
-        GrayscaleImage<T>& operator=(const GrayscaleImage<T>& other);
+        GrayscaleImage<T>& operator=(const GrayscaleImage<T> other);
         T& operator()(short x, short y);
         const T& operator()(short x, short y) const;
         GrayscaleImage<T> operator*(T a);
         GrayscaleImage<T> operator+(T a);
+        bool operator==(const GrayscaleImage<T>& other) const;
         void operator!();
         float getFillCoefficient() const;
         void invert_under_line(short x1, short y1, short x2, short y2) const;
@@ -38,5 +39,5 @@ namespace space_class {
         }
     };
 
-    
+
 }
